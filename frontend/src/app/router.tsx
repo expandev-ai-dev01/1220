@@ -6,6 +6,8 @@ import { RootLayout } from '@/pages/layouts/RootLayout';
 const HomePage = lazy(() => import('@/pages/Home'));
 const SongListPage = lazy(() => import('@/pages/SongList'));
 const SongCreatePage = lazy(() => import('@/pages/SongCreate'));
+const SongDetailPage = lazy(() => import('@/pages/SongDetail'));
+const SongEditPage = lazy(() => import('@/pages/SongEdit'));
 const NotFoundPage = lazy(() => import('@/pages/NotFound'));
 
 export const router = createBrowserRouter([
@@ -37,6 +39,22 @@ export const router = createBrowserRouter([
             element: (
               <Suspense fallback={<LoadingSpinner />}>
                 <SongCreatePage />
+              </Suspense>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <Suspense fallback={<LoadingSpinner />}>
+                <SongDetailPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: ':id/edit',
+            element: (
+              <Suspense fallback={<LoadingSpinner />}>
+                <SongEditPage />
               </Suspense>
             ),
           },

@@ -5,5 +5,24 @@
  * @module services/song
  */
 
-export { songCreate, songList, songGet, songUpdate, songDelete } from './songLogic';
-export type { Song, SongCreateRequest, SongUpdateRequest, SongListResponse } from './songTypes';
+export {
+  songCreate,
+  songList,
+  songGet,
+  songGetDetail,
+  songUpdate,
+  songDelete,
+  songSearch,
+  songTranspose,
+} from './songLogic';
+export { transposeChord, detectOriginalKey, calculateInterval } from './transposeLogic';
+export type {
+  Song,
+  SongCreateRequest,
+  SongUpdateRequest,
+  SongListResponse,
+  SongDetailResponse,
+  SongSearchParams,
+  LyricLine,
+  TransposedSong,
+} from './songTypes';

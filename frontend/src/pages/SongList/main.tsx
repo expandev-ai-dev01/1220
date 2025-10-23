@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSongList } from '@/domain/song/hooks/useSongList';
+import { useSongSearch } from '@/domain/song/hooks/useSongSearch';
+import { SongSearchForm } from '@/domain/song/components/SongSearchForm';
 import { Button } from '@/core/components/Button';
 import { LoadingSpinner } from '@/core/components/LoadingSpinner';
 import { ErrorMessage } from '@/core/components/ErrorMessage';
+import type { SongSearchParams } from '@/domain/song/types';
 import type { SongListPageProps } from './types';
 
 /**
  * @page SongListPage
- * @summary Page displaying list of all songs in the catalog
+ * @summary Page displaying list of all songs with search functionality
  * @domain song
  * @type list-page
  * @category song-management
@@ -18,30 +22,64 @@ import type { SongListPageProps } from './types';
  *
  * @layout
  * - Layout: RootLayout
- * - Sections: Header, List
+ * - Sections: Header, Search Form, List
  *
  * @data
- * - Sources: Song API
+ * - Sources: Song API, Search API
  * - Loading: Skeleton loading states
  * - Caching: 2 minutes stale time
+ *
+ * @userFlows
+ * - Primary: View all songs in catalog
+ * - Secondary: Search songs by multiple criteria
+ * - Tertiary: Navigate to song details or create new song
  */
 export const SongListPage = (props: SongListPageProps) => {
   const navigate = useNavigate();
-  const { songs, isLoading, error, refetch } = useSongList();
+  const [isSearchMode, setIsSearchMode] = useState(false);
+
+  const {
+    songs: allSongs,
+    isLoading: isLoadingAll,
+    error: errorAll,
+    refetch: refetchAll,
+  } = useSongList({
+    enabled: !isSearchMode,
+  });
+
+  const {
+    songs: searchResults,
+    isSearching,
+    error: searchError,
+    search,
+    clearSearch,
+  } = useSongSearch({
+    enabled: isSearchMode,
+  });
+
+  const handleSearch = (filters: SongSearchParams) => {
+    setIsSearchMode(true);
+    search(filters);
+  };
+
+  const handleClearSearch = () => {
+    setIsSearchMode(false);
+    clearSearch();
+  };
+
+  const displaySongs = isSearchMode ? searchResults : allSongs;
+  const isLoading = isSearchMode ? isSearching : isLoadingAll;
+  const error = isSearchMode ? searchError : errorAll;
 
   if (error) {
     return (
       <ErrorMessage
         title="Erro ao carregar músicas"
         message={error.message}
-        onRetry={refetch}
+        onRetry={isSearchMode ? () => {} : refetchAll}
         onBack={() => navigate('/')}
       />
     );
-  }
-
-  if (isLoading) {
-    return <LoadingSpinner size="large" />;
   }
 
   return (
@@ -50,7 +88,11 @@ export const SongListPage = (props: SongListPageProps) => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Catálogo de Músicas</h1>
           <p className="text-gray-600">
-            {songs?.length || 0} {songs?.length === 1 ? 'música cadastrada' : 'músicas cadastradas'}
+            {isSearchMode
+              ? `${displaySongs?.length || 0} resultado(s) encontrado(s)`
+              : `${displaySongs?.length || 0} ${
+                  displaySongs?.length === 1 ? 'música cadastrada' : 'músicas cadastradas'
+                }`}
           </p>
         </div>
         <Button variant="primary" onClick={() => navigate('/songs/new')}>
@@ -58,7 +100,17 @@ export const SongListPage = (props: SongListPageProps) => {
         </Button>
       </div>
 
-      {!songs || songs.length === 0 ? (
+      <div className="mb-8">
+        <SongSearchForm
+          onSearch={handleSearch}
+          onClear={handleClearSearch}
+          isSearching={isSearching}
+        />
+      </div>
+
+      {isLoading ? (
+        <LoadingSpinner size="large" />
+      ) : !displaySongs || displaySongs.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-12 text-center">
           <div className="text-gray-400 mb-4">
             <svg
@@ -76,16 +128,26 @@ export const SongListPage = (props: SongListPageProps) => {
             </svg>
           </div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Nenhuma música cadastrada ainda
+            {isSearchMode ? 'Nenhuma música encontrada' : 'Nenhuma música cadastrada ainda'}
           </h3>
-          <p className="text-gray-600 mb-6">Comece adicionando sua primeira música ao catálogo</p>
-          <Button variant="primary" onClick={() => navigate('/songs/new')}>
-            Cadastrar Primeira Música
-          </Button>
+          <p className="text-gray-600 mb-6">
+            {isSearchMode
+              ? 'Tente ajustar os filtros de busca ou limpar a pesquisa'
+              : 'Comece adicionando sua primeira música ao catálogo'}
+          </p>
+          {isSearchMode ? (
+            <Button variant="secondary" onClick={handleClearSearch}>
+              Limpar Busca
+            </Button>
+          ) : (
+            <Button variant="primary" onClick={() => navigate('/songs/new')}>
+              Cadastrar Primeira Música
+            </Button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {songs.map((song) => (
+          {displaySongs.map((song) => (
             <div
               key={song.id}
               className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"

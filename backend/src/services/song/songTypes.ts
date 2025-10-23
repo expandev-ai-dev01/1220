@@ -41,3 +41,41 @@ export interface SongListResponse {
   category: string | null;
   dateCreated: Date;
 }
+
+export interface LyricLine {
+  type: 'chord' | 'text' | 'empty';
+  content: string;
+}
+
+export interface SongDetailResponse {
+  id: string;
+  title: string;
+  artist: string;
+  lyrics: string;
+  originalKey: string | null;
+  category: string | null;
+  dateCreated: Date;
+  dateModified: Date;
+  formattedLyrics: LyricLine[];
+}
+
+export interface SongSearchParams {
+  query?: string | null;
+  title?: string | null;
+  artist?: string | null;
+  category?: string | null;
+  lyrics?: string | null;
+}
+
+export interface TransposedSong {
+  id: string;
+  title: string;
+  artist: string;
+  lyrics: string;
+  originalKey: string | null;
+  transposedKey: string | null;
+  category: string | null;
+  dateCreated: Date;
+  dateModified: Date;
+  formattedLyrics: LyricLine[];
+}

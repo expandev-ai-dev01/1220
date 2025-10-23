@@ -9,6 +9,17 @@ export interface Song {
   dateModified: Date;
 }
 
+export interface SongDetail extends Song {
+  formattedLyrics: FormattedLyricsLine[];
+  transposedKey?: string;
+}
+
+export interface FormattedLyricsLine {
+  type: 'chord' | 'text' | 'empty';
+  content: string;
+  chords?: string[];
+}
+
 export interface CreateSongDto {
   title: string;
   artist: string;
@@ -29,4 +40,12 @@ export interface SongListParams {
   search?: string;
   category?: string;
   artist?: string;
+}
+
+export interface SongSearchParams {
+  query?: string;
+  title?: string;
+  artist?: string;
+  category?: string;
+  lyrics?: string;
 }

@@ -1,5 +1,12 @@
 import { authenticatedClient } from '@/core/lib/api';
-import type { Song, CreateSongDto, UpdateSongDto, SongListParams } from '../types';
+import type {
+  Song,
+  SongDetail,
+  CreateSongDto,
+  UpdateSongDto,
+  SongListParams,
+  SongSearchParams,
+} from '../types';
 
 /**
  * @service songService
@@ -34,6 +41,15 @@ export const songService = {
   },
 
   /**
+   * @endpoint GET /api/v1/internal/song/:id/detail
+   * @summary Fetches detailed song view with formatted content for display
+   */
+  async getDetail(id: string): Promise<SongDetail> {
+    const response = await authenticatedClient.get(`/song/${id}/detail`);
+    return response.data.data;
+  },
+
+  /**
    * @endpoint POST /api/v1/internal/song
    * @summary Creates new song
    */
@@ -57,5 +73,23 @@ export const songService = {
    */
   async delete(id: string): Promise<void> {
     await authenticatedClient.delete(`/song/${id}`);
+  },
+
+  /**
+   * @endpoint POST /api/v1/internal/song/:id/transpose
+   * @summary Transposes song chords to a different musical key
+   */
+  async transpose(id: string, semitones: number): Promise<SongDetail> {
+    const response = await authenticatedClient.post(`/song/${id}/transpose`, { semitones });
+    return response.data.data;
+  },
+
+  /**
+   * @endpoint GET /api/v1/internal/song/search
+   * @summary Searches songs by title, artist, category or lyrics content
+   */
+  async search(params: SongSearchParams): Promise<Song[]> {
+    const response = await authenticatedClient.get('/song/search', { params });
+    return response.data.data;
   },
 };
