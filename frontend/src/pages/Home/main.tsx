@@ -1,6 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import type { HomePageProps } from './types';
 
 export const HomePage = (props: HomePageProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-8">
       <section className="text-center">
@@ -69,11 +72,12 @@ export const HomePage = (props: HomePageProps) => {
 
       <section className="bg-blue-50 p-8 rounded-lg text-center">
         <h3 className="text-2xl font-bold text-gray-900 mb-4">Pronto para começar?</h3>
-        <p className="text-gray-600 mb-6">
-          Crie sua conta e comece a organizar seu repertório musical hoje mesmo.
-        </p>
-        <button className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium">
-          Criar Conta Gratuita
+        <p className="text-gray-600 mb-6">Comece a organizar seu repertório musical agora mesmo.</p>
+        <button
+          onClick={() => navigate('/songs')}
+          className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium"
+        >
+          Ver Catálogo de Músicas
         </button>
       </section>
     </div>
